@@ -1,4 +1,5 @@
 // Using Express ROuter
+const path = require("path");
 
 const express = require("express");
 // NOTE: without the body parser, the req.body would be undefined
@@ -9,6 +10,8 @@ const shopRoutes = require('./routes/shop')
 const app = express();
 
 app.use(bodyParser.urlencoded({extended:false}));
+// NOTE: to handle static files
+app.use(express.static(path.join(__dirname, 'public')))
 
 // NOTE: the order matters
 // 1.
