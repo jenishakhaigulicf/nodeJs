@@ -1,10 +1,8 @@
-const path = require('path')
-
 const express = require("express");
 
-const rootDir = require('../util/path')
-
 const router = express.Router();
+
+const products = [];
 
 // router.get("/add-product", (req, res) => {
 //   res.send(
@@ -14,11 +12,16 @@ const router = express.Router();
 
 // NOTE: don't forget to add /admin in the form action
 router.get("/add-product", (req, res) => {
+  // NOTE: using html here itself
   // res.send(
   //   "<form action='/admin/product' type='submit' method='POST'><input type='text' name='title'><button type='submit'>Add Product</button></form>"
   // );
 
-  res.sendFile(path.join(rootDir, 'views', 'add-product.html'))
+  // NOTE: adding html in diff file
+  // res.sendFile(path.join(rootDir, "views", "add-product.html"));
+
+  // NOTE: using EJS
+  res.render("add-product", { pageTitle: "Add Product" });
 });
 
 // router.post("/product", (req, res) => {
@@ -28,7 +31,9 @@ router.get("/add-product", (req, res) => {
 
 router.post("/add-product", (req, res) => {
   console.log("req.body", req.body);
+  products.push({ title: req.body.title });
   res.redirect("/");
 });
 
-module.exports = router;
+exports.routes = router;
+exports.products = products;
