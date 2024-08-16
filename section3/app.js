@@ -5,6 +5,7 @@ const express = require("express");
 // NOTE: without the body parser, the req.body would be undefined
 const bodyParser = require('body-parser')
 
+const page4040Controller = require('./controllers/404')
 const adminData = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
 const app = express();
@@ -24,15 +25,6 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use('/admin', adminData.routes)
 // 2.
 app.use(shopRoutes)
-app.use((req,res)=>{
-    // NOTE: showing plane html from the app 
-    // res.status(404).send('<h1>Page Not Found</h1>')
-
-    // NOTE: adding a dynamic HTML page for the 404 called 404 html
-    // res.status(404).render('404',{pageTitle: "Page Not Found"})
-
-    // NOTE: using EJS
-    res.render('404',{pageTitle: "Page Not Found"})
-})
+app.use(page4040Controller.page404)
 
 app.listen(3000);
