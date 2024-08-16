@@ -11,7 +11,7 @@ const app = express();
 
 // NOTE: for dynamic template use pug
 app.set('view engine','ejs')
-// NOTE: default it takes views, so no need to write this
+// NOTE: default it takes views, so no need to write this if our folder name is view
 app.set('views', 'views')
 
 // NOTE: to parse the data of form
