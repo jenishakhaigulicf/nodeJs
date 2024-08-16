@@ -31,6 +31,6 @@ exports.getAddProduct = (req, res) => {
     // res.sendFile(path.join(__dirname,'../', 'views', 'shop.html'))
   
     // NOTE: dynamic UI (pug)
-    res.render('shop', {prods: adminData.products, pageTitle: 'My Shop', path:"/"})
+    res.render('shop', {prods: products, pageTitle: 'My Shop', path:"/"})
   
   }
