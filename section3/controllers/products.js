@@ -35,6 +35,7 @@ exports.getProducts = (req, res) => {
   // res.sendFile(path.join(__dirname,'../', 'views', 'shop.html'))
 
   // NOTE: dynamic UI (pug/ejs)
-  const products = Product.fetchAll();
-  res.render("shop", { prods: products, pageTitle: "My Shop", path: "/" });
-};
+  // const products = Product.fetchAll();
+  Product.fetchAll(products => {
+    res.render("shop", { prods: products, pageTitle: "My Shop", path: "/" });
+  });};
