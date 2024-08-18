@@ -12,7 +12,7 @@ module.exports = class Cart {
     // Fetch the previous cart
     fs.readFile(p, (err, fileContent) => {
       let cart = { products: [], totalPrice: 0 };
-      if (!err) {
+      if (!err && fileContent.length != 0) {
         cart = JSON.parse(fileContent);
       }
       // Analyze the cart => Find existing product
@@ -37,4 +37,24 @@ module.exports = class Cart {
       });
     });
   }
+
+  static deleteProduct(id, productPrice) {
+    fs.readFile(p, (err, fileContent) => {
+      if (err) return;
+      const updatedCart = { ...JSON.parse(fileContent) };
+      console.log(updatedCart, "id", id)
+      const product = updatedCart.products.find((prod) => prod.id == id);
+      console.log(product)
+      const prodQty = product?.qty;
+      console.log("prodQty",prodQty)
+      updatedCart.products = updatedCart.products.filter(
+        (prod) => prod.id !== id
+      );
+      updatedCart.totalPrice = updatedCart.totalPrice - productPrice * prodQty;
+      fs.writeFile(p, JSON.stringify(updatedCart), err => {
+        console.log(err)
+      })
+    });
+  }
+
 };
