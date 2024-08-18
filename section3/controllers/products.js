@@ -16,7 +16,6 @@ exports.getAddProduct = (req, res) => {
 };
 
 exports.postAddProduct = (req, res) => {
-  console.log("req.body", req.body);
   // products.push({ title: req.body.title });
   const product = new Product(req.body.title);
   product.save();
