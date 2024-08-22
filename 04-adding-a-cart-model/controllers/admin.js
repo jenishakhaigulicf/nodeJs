@@ -22,14 +22,14 @@ exports.postAddProduct = (req, res, next) => {
   //   res.redirect('/')
   // }).catch(e=>console.log(e));
   // NOTE: method added by sequelize
-  req.user.createProduct();
+  // req.user.createProduct();
   Product.create({
     title,
     price,
     imageUrl,
     description,
     // NOTE: instead of adding method added by sequelize we can also do
-    // userId: req.user.id
+    userId: req.user.id,
   })
     .then((r) => {
       console.log("Created Product");
@@ -44,9 +44,11 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect("/");
   }
   const prodId = req.params.productId;
-  Product.findByPk(prodId)
-    .then((product) => {
-      if (!product) {
+  // Product.findByPk(prodId)
+  req.user
+    .getProducts({ where: { id: prodId } })
+    .then((products) => {
+      if (!products.length) {
         return res.redirect("/");
       }
       res.render("admin/edit-product", {
@@ -56,7 +58,7 @@ exports.getEditProduct = (req, res, next) => {
         productCSS: true,
         activeAddProduct: true,
         editing: editMode,
-        product: product,
+        product: products[0],
       });
     })
     .catch((e) => console.log(e));
@@ -82,7 +84,9 @@ exports.postEditProduct = (req, res) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
+  // Product.findAll()
+  req.user
+    .getProducts()
     .then((products) => {
       res.render("admin/products", {
         prods: products,
