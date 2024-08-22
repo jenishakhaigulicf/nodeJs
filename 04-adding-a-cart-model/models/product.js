@@ -49,7 +49,7 @@ const Sequelize = require("sequelize");
 
 const sequelize = require("../util/database");
 
-// MODEL
+// MODEL Definition
 const Product = sequelize.define("product", {
   id: {
     type: Sequelize.INTEGER,

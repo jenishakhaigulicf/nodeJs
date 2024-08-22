@@ -24,6 +24,7 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
+// SYNC app to database
 sequelize
   .sync()
   .then((result) => {
