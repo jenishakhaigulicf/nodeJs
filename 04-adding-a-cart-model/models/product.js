@@ -1,6 +1,5 @@
-const fs = require("fs");
-const path = require("path");
-
+const db = require('../util/database')
+const path = require('path')
 const Cart = require('../models/cart')
 
 const p = path.join(
@@ -9,15 +8,6 @@ const p = path.join(
   "products.json"
 );
 
-const getProductsFromFile = (cb) => {
-  fs.readFile(p, (err, fileContent) => {
-    if (err) {
-      cb([]);
-    } else {
-      cb(JSON.parse(fileContent));
-    }
-  });
-};
 
 module.exports = class Product {
   constructor(id, title, imageUrl, description, price) {
@@ -29,22 +19,9 @@ module.exports = class Product {
   }
 
   save() {
-    getProductsFromFile((products) => {
-      if (this.id) {
-        const existingProdIndex = products.findIndex((prod) => prod.id == this.id);
-        const updatedProd = [...products];
-        updatedProd[existingProdIndex] = this;
-        fs.writeFile(p, JSON.stringify(updatedProd), (err) => {
-          console.log(err);
-        });
-      } else {
-        this.id = Math.random().toString();
-        products.push(this);
-        fs.writeFile(p, JSON.stringify(products), (err) => {
-          console.log(err);
-        });
-      }
-    });
+    // NOTE: SQL injection
+    // protection
+   return db.execute('INSERT INTO products (title, price, imageUrl, description) VALUES (?,?,?,?)',[this.title, this.price, this.imageUrl, this.description])
   }
 
   static deleteById(id) {
@@ -61,7 +38,7 @@ module.exports = class Product {
   }
 
   static fetchAll(cb) {
-    getProductsFromFile(cb);
+    return db.execute('SELECT * FROM products');
   }
 
   static findById(id, cb) {
