@@ -21,11 +21,15 @@ exports.postAddProduct = (req, res, next) => {
   // product.save().then(() => {
   //   res.redirect('/')
   // }).catch(e=>console.log(e));
+  // NOTE: method added by sequelize
+  req.user.createProduct();
   Product.create({
     title,
     price,
     imageUrl,
     description,
+    // NOTE: instead of adding method added by sequelize we can also do
+    // userId: req.user.id
   })
     .then((r) => {
       console.log("Created Product");
