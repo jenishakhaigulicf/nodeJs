@@ -3,6 +3,12 @@ const bcrypt = require("bcryptjs");
 
 const User = require("../models/user");
 
+const transporter = nodemailer.createTransport(sendgridTransport({
+  auth:{
+    api_key: ''
+  }
+}))
+
 exports.getLogin = (req, res, next) => {
   // const isAuthenticated = (req.get('Cookie').split("=")[1])
   res.render("auth/login", {
@@ -71,8 +77,13 @@ exports.postSignup = (req, res, next) => {
           return user.save();
         })
         .then((user) => {
-          console.log(user);
-          user.createCart();
+          transporter.sendMail({
+            to:email,
+            from: 'shop@node-complete.com',
+            subject: 'SignUp succeeded!',
+            html: '<h1>You successfully signed up!</h1>'
+          })
+          return user.createCart();
         });
     })
     .then(() => res.redirect("/login"))
