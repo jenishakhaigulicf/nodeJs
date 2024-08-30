@@ -16,7 +16,7 @@ exports.getLogin = (req, res, next) => {
   if (message.length) {
     message = message[0];
   } else {
-    message = null
+    message = null;
   }
   res.render("auth/login", {
     path: "/login",
@@ -62,7 +62,7 @@ exports.getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "Signup",
     isAuthenticated: false,
-    errorMessage : " "
+    errorMessage: " ",
   });
 };
 
@@ -71,11 +71,11 @@ exports.postSignup = (req, res, next) => {
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
   const errors = validationResult(req);
-  if (errors.isEmpty) {
+  if (!errors.isEmpty()) {
     return res.status(422).render("auth/signup", {
       path: "/signup",
       pageTitle: "Signup",
-      errorMessage: errors.array()[0].msg,
+      errorMessage: errors.array()[0]?.msg,
     });
   }
   // if the user already exists then just redirect
@@ -104,12 +104,13 @@ exports.postSignup = (req, res, next) => {
     .then(() => res.redirect("/login"))
     .catch((e) => console.log(e));
 };
+
 exports.getReset = (req, res, next) => {
   let message = req.flash("error");
   if (message.length) {
     message = message[0];
   } else {
-    message = null
+    message = null;
   }
   res.render("auth/reset", {
     path: "/reset",

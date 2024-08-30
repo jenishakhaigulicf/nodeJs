@@ -1,6 +1,6 @@
 // step 1
 const express = require('express');
-const { check } = require('express-validator');
+const { check, body } = require('express-validator');
 
 const authController = require('../controllers/auth');
 
@@ -12,8 +12,18 @@ router.get('/signup', authController.getSignup);
 
 router.post('/login', authController.postLogin);
 
-router.post('/signup', check('email').isEmail().withMessage('the email you provided is invalid'), authController.postSignup);
+router.post(
+  '/signup',
+  [
+    check('email').isEmail().withMessage('the email you provided is invalid'),
+    body('password', 'please enter a password with only number and texts')
+      .isLength({ min: 4 })
+      .isAlphanumeric(),
+  ],
+  authController.postSignup
+);
 
 router.post('/logout', authController.postLogout);
 
+router.get('/reset', authController.getReset)
 module.exports = router;
