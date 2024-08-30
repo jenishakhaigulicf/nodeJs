@@ -12,10 +12,16 @@ const { validationResult } = require("express-validator");
 
 exports.getLogin = (req, res, next) => {
   // const isAuthenticated = (req.get('Cookie').split("=")[1])
+  let message = req.flash("error");
+  if (message.length) {
+    message = message[0];
+  } else {
+    message = null
+  }
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
-    errorMessage: req.flash("error"),
+    errorMessage: message,
   });
 };
 
@@ -97,4 +103,17 @@ exports.postSignup = (req, res, next) => {
     })
     .then(() => res.redirect("/login"))
     .catch((e) => console.log(e));
+};
+exports.getReset = (req, res, next) => {
+  let message = req.flash("error");
+  if (message.length) {
+    message = message[0];
+  } else {
+    message = null
+  }
+  res.render("auth/reset", {
+    path: "/reset",
+    pageTitle: "Reset Password",
+    errorMessage: message,
+  });
 };
