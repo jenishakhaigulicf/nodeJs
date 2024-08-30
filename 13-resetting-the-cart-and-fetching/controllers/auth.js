@@ -169,12 +169,41 @@ exports.getNewPassword = (req, res, next) => {
         message = null;
       }
       // redirect them to the update password page
-      res.render("auth/new-password", {
+      return res.render("auth/new-password", {
         path: "/update-password",
         pageTitle: "Update Password",
         errorMessage: message,
         userId: user.id.toString(),
+        passwordToken: user.resetToken,
       });
+    })
+    .catch((e) => console.log(e));
+};
+
+exports.postNewPassword = (req, res, next) => {
+  const newPassword = req.body.password;
+  const userId = req.body.userId;
+  const resetToken = req.body.passwordToken;
+  let resetUser;
+  User.findOne({
+    where: {
+      resetToken,
+      resetTokenExpiration: { [Op.gt]: Date.now() },
+      id: userId,
+    },
+  })
+    .then((user) => {
+      resetUser = user;
+      return bcrypt.hash(newPassword, 12);
+    })
+    .then((hashedPassword) => {
+      resetUser.password = hashedPassword;
+      resetUser.resetToken = undefined;
+      resetUser.resetTokenExpiration = undefined;
+      return resetUser.save();
+    })
+    .then(() => {
+      return res.redirect("/login");
     })
     .catch((e) => console.log(e));
 };
