@@ -15,6 +15,8 @@ const OrderItem = require("./models/order-item");
 
 const app = express();
 
+const csrfProtection = csrf();
+
 app.set("view engine", "ejs");
 app.set("views", "views");
 
@@ -29,11 +31,12 @@ app.use(
   session({ secret: "my secret", resave: "false", saveUninitialized: false })
 );
 
+app.use(csrfProtection)
+
 app.use((req, res, next) => {
   if (!req.session.user?.id) {
     return next();
   }
-  console.log(req.session.user);
   User.findByPk(req.session.user.id)
     .then((user) => {
       req.user = user;
@@ -62,20 +65,6 @@ Order.belongsToMany(Product, { through: OrderItem });
 sequelize
   // .sync({ force: true })
   .sync()
-  .then((result) => {
-    return User.findByPk(1);
-    // console.log(result);
-  })
-  .then((user) => {
-    if (!user) {
-      return User.create({ name: "Max", email: "test@test.com" });
-    }
-    return user;
-  })
-  .then((user) => {
-    // console.log(user);
-    return user.createCart();
-  })
   .then((cart) => {
     app.listen(3000);
   })
