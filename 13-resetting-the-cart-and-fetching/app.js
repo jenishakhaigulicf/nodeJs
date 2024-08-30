@@ -30,7 +30,11 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  User.findByPk(1)
+  if (!req.session.user?.id) {
+    return next();
+  }
+  console.log(req.session.user);
+  User.findByPk(req.session.user.id)
     .then((user) => {
       req.user = user;
       next();
