@@ -1,6 +1,7 @@
 // step 2
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const { Op } = require("sequelize");
 
 const User = require("../models/user");
 const { validationResult } = require("express-validator");
@@ -119,6 +120,7 @@ exports.getReset = (req, res, next) => {
     errorMessage: message,
   });
 };
+let t = "";
 
 exports.postReset = (req, res, next) => {
   const email = req.body.email;
@@ -143,23 +145,36 @@ exports.postReset = (req, res, next) => {
         return user.save();
       })
       .then(() => {
-        // TODO: mail is not working at the moment so using console
+        // TODO: mail is not working at the moment so using t
+        t = token;
         console.log(token);
+        return res.redirect("/new-password");
       })
       .catch((e) => console.log(e));
   });
 };
 
 exports.getNewPassword = (req, res, next) => {
-  let message = req.flash("error");
-  if (message.length > 0) {
-    message = message[0];
-  } else {
-    message = null;
-  }
-  res.render("auth/reset", {
-    path: "/reset",
-    pageTitle: "Reset Password",
-    errorMessage: message,
-  });
-}
+  // find if the token is correct or not
+  // the token is related to the user
+  // so if we find the user with that token then the token is correct
+  User.findOne({
+    where: { resetToken: t, resetTokenExpiration: { [Op.gt]: Date.now() } },
+  })
+    .then((user) => {
+      let message = req.flash("error");
+      if (message.length > 0) {
+        message = message[0];
+      } else {
+        message = null;
+      }
+      // redirect them to the update password page
+      res.render("auth/new-password", {
+        path: "/update-password",
+        pageTitle: "Update Password",
+        errorMessage: message,
+        userId: user.id.toString(),
+      });
+    })
+    .catch((e) => console.log(e));
+};

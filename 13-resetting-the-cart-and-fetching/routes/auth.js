@@ -25,5 +25,8 @@ router.post(
 
 router.post('/logout', authController.postLogout);
 
-router.get('/reset', authController.getReset)
+router.get('/reset', authController.getReset);
+router.post('/reset', authController.postReset);
+
+router.get('/new-password', authController.getNewPassword)
 module.exports = router;
