@@ -1,5 +1,6 @@
 // step 2
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 const User = require("../models/user");
 const { validationResult } = require("express-validator");
@@ -107,7 +108,7 @@ exports.postSignup = (req, res, next) => {
 
 exports.getReset = (req, res, next) => {
   let message = req.flash("error");
-  if (message.length) {
+  if (message.length > 0) {
     message = message[0];
   } else {
     message = null;
@@ -118,3 +119,47 @@ exports.getReset = (req, res, next) => {
     errorMessage: message,
   });
 };
+
+exports.postReset = (req, res, next) => {
+  const email = req.body.email;
+  crypto.randomBytes(32, (err, buffer) => {
+    if (err) {
+      console.log(err);
+      return res.redirect("/reset");
+    }
+    // create a token
+    const token = buffer.toString("hex");
+    // find if the user with that entered email exists or not
+    User.findOne({ where: { email } })
+      .then((user) => {
+        if (!user) {
+          req.flash("error", "No account with that email found");
+          return res.redirect("/reset");
+        }
+        // if yes then post the data, with the reset token and the date
+        user.resetToken = token;
+        user.resetTokenExpiration = Date.now() + 3600000;
+        // save the user
+        return user.save();
+      })
+      .then(() => {
+        // TODO: mail is not working at the moment so using console
+        console.log(token);
+      })
+      .catch((e) => console.log(e));
+  });
+};
+
+exports.getNewPassword = (req, res, next) => {
+  let message = req.flash("error");
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  res.render("auth/reset", {
+    path: "/reset",
+    pageTitle: "Reset Password",
+    errorMessage: message,
+  });
+}
