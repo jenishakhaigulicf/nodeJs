@@ -8,7 +8,7 @@ exports.getLogin = (req, res, next) => {
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
-    isAuthenticated: req.session.isLoggedIn,
+    errorMessage: req.flash('error')
   });
 };
 
@@ -19,6 +19,7 @@ exports.postLogin = (req, res) => {
   User.findOne({ where: { email } })
     .then((user) => {
       if (!user) {
+        req.flash("error", "Invalid email or password");
         return res.redirect("/login");
       }
       bcrypt.compare(password, user.password).then((doMatch) => {
@@ -63,16 +64,17 @@ exports.postSignup = (req, res, next) => {
         return res.redirect("/signup");
       }
       // else
-      return bcrypt.hash(password, 12)
-      .then((hashedPasswords) => {
-        const user = new User({ email, password: hashedPasswords });
-        return user.save();
-      })
-      .then((user)=> {
-        console.log(user)
-        user.createCart();
-      })
+      return bcrypt
+        .hash(password, 12)
+        .then((hashedPasswords) => {
+          const user = new User({ email, password: hashedPasswords });
+          return user.save();
+        })
+        .then((user) => {
+          console.log(user);
+          user.createCart();
+        });
     })
-      .then(() => res.redirect("/login"))
+    .then(() => res.redirect("/login"))
     .catch((e) => console.log(e));
 };

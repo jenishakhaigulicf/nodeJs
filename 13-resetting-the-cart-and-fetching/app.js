@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const csurf = require("csurf");
+const flash = require("connect-flash");
 
 const errorController = require("./controllers/error");
 const sequelize = require("./util/database");
@@ -32,7 +33,8 @@ app.use(
   session({ secret: "my secret", resave: "false", saveUninitialized: false })
 );
 
-app.use(csrfProtection)
+app.use(csrfProtection);
+app.use(flash());
 
 app.use((req, res, next) => {
   if (!req.session.user?.id) {
@@ -50,7 +52,7 @@ app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
   res.locals.csrfToken = req.csrfToken();
   next();
-})
+});
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
