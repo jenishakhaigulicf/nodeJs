@@ -1,16 +1,16 @@
-const Product = require('../models/product');
-const User = require('../models/user');
+const Product = require("../models/product");
+const User = require("../models/user");
 
 exports.getAddProduct = (req, res, next) => {
   // Note: not good way to protect route
   // if(!req.session.isLoggedIn){
   //   res.redirect('/login')
   // }
-  res.render('admin/edit-product', {
-    pageTitle: 'Add Product',
-    path: '/admin/add-product',
+  res.render("admin/edit-product", {
+    pageTitle: "Add Product",
+    path: "/admin/add-product",
     editing: false,
-    isAuthenticated: req.session.isLoggedIn
+    isAuthenticated: req.session.isLoggedIn,
   });
 };
 
@@ -24,14 +24,14 @@ exports.postAddProduct = (req, res, next) => {
       title: title,
       price: price,
       imageUrl: imageUrl,
-      description: description
+      description: description,
     })
-    .then(result => {
+    .then((result) => {
       // console.log(result);
-      console.log('Created Product');
-      res.redirect('/admin/products');
+      console.log("Created Product");
+      res.redirect("/admin/products");
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
     });
 };
@@ -39,7 +39,7 @@ exports.postAddProduct = (req, res, next) => {
 exports.getEditProduct = (req, res, next) => {
   const editMode = req.query.edit;
   if (!editMode) {
-    return res.redirect('/');
+    return res.redirect("/");
   }
   const prodId = req.params.productId;
   req.user
@@ -48,11 +48,11 @@ exports.getEditProduct = (req, res, next) => {
     .then((products) => {
       const product = products[0];
       if (!product) {
-        return res.redirect('/');
+        return res.redirect("/");
       }
-      res.render('admin/edit-product', {
-        pageTitle: 'Edit Product',
-        path: '/admin/edit-product',
+      res.render("admin/edit-product", {
+        pageTitle: "Edit Product",
+        path: "/admin/edit-product",
         editing: editMode,
         product: product,
         isAuthenticated: req.session.isLoggedIn,
@@ -68,21 +68,20 @@ exports.postEditProduct = (req, res, next) => {
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
   Product.findByPk(prodId)
-    .then(product => {
+    .then((product) => {
       if (product.userId.toString() !== req.user.id.toString()) {
-        return res.redirect('/');
+        return res.redirect("/");
       }
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
       product.imageUrl = updatedImageUrl;
-      return product.save()
-      .then(() => {
-        console.log('UPDATED PRODUCT!');
-        res.redirect('/admin/products');
-      })
+      return product.save().then(() => {
+        console.log("UPDATED PRODUCT!");
+        res.redirect("/admin/products");
+      });
     })
-    .catch(err => console.log(err));
+    .catch((err) => console.log(err));
 };
 
 exports.getProducts = (req, res, next) => {
@@ -90,15 +89,15 @@ exports.getProducts = (req, res, next) => {
     .then((user) => {
       return user.getProducts();
     })
-    .then(products => {
-      res.render('admin/products', {
+    .then((products) => {
+      res.render("admin/products", {
         prods: products,
-        pageTitle: 'Admin Products',
-        path: '/admin/products',
-        isAuthenticated: req.session.isLoggedIn
+        pageTitle: "Admin Products",
+        path: "/admin/products",
+        isAuthenticated: req.session.isLoggedIn,
       });
     })
-    .catch(err => console.log(err));
+    .catch((err) => console.log(err));
 };
 
 exports.postDeleteProduct = (req, res, next) => {
@@ -108,8 +107,8 @@ exports.postDeleteProduct = (req, res, next) => {
     //   return product.destroy();
     // })
     .then(() => {
-      console.log('DESTROYED PRODUCT');
-      res.redirect('/admin/products');
+      console.log("DESTROYED PRODUCT");
+      res.redirect("/admin/products");
     })
-    .catch(err => console.log(err));
+    .catch((err) => console.log(err));
 };
