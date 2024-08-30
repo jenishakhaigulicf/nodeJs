@@ -63,13 +63,16 @@ exports.postSignup = (req, res, next) => {
         return res.redirect("/signup");
       }
       // else
-      return bcrypt.hash(password, 12).then((hashedPasswords) => {
+      return bcrypt.hash(password, 12)
+      .then((hashedPasswords) => {
         const user = new User({ email, password: hashedPasswords });
-        user.save();
+        return user.save();
+      })
+      .then((user)=> {
+        console.log(user)
         user.createCart();
-      });
+      })
     })
-
-    .then(() => res.redirect("/login"))
+      .then(() => res.redirect("/login"))
     .catch((e) => console.log(e));
 };

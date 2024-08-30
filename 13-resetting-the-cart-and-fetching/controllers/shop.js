@@ -46,7 +46,7 @@ exports.getIndex = (req, res, next) => {
         pageTitle: 'Shop',
         path: '/',
         isAuthenticated: req.session.isLoggedIn,
-        csrfToken:  req.csrfToken()
+        csrfToken: req.csrfToken()
       });
     })
     .catch(err => {
@@ -104,7 +104,8 @@ exports.postCart = (req, res, next) => {
     .then(() => {
       res.redirect('/cart');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log(err)});
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {
