@@ -19,6 +19,7 @@ router.post(
     check("email")
       .isEmail()
       .withMessage("the email you provided is invalid")
+      .normalizeEmail()
       .custom((value) => {
         return User.findOne({ where: { email: value } })
           .then((user) => {
@@ -28,6 +29,8 @@ router.post(
           })
       }),
     body("password","Please enter a password with length >=4")
+      // trim should be on the top no then other validation will be triggered
+      .trim()
       .isLength({ min: 4 })
       .isAlphanumeric()
   ],
@@ -40,6 +43,7 @@ router.post(
     check("email")
       .isEmail()
       .withMessage("the email you provided is invalid")
+      .normalizeEmail()
       .custom((value, { req }) => {
         return User.findOne({ where: { email: value } }).then((userCheck) => {
           if (userCheck) {
@@ -50,14 +54,17 @@ router.post(
         });
       }),
     body("password", "please enter a password with only number and texts and length >= 4")
+      .trim()
       .isLength({ min: 4 })
       .isAlphanumeric(),
-    body("confirmPassword").custom((value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error("Passwords have to match");
-      }
-      return true;
-    }),
+    body("confirmPassword")
+      .trim()
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error("Passwords have to match");
+        }
+        return true;
+      }),
   ],
   authController.postSignup
 );
