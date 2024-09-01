@@ -31,6 +31,14 @@ exports.postLogin = (req, res) => {
   res.setHeader("Set-Cookie", "isLoggedIn=true");
   const email = req.body.email;
   const password = req.body.password;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("auth/login", {
+      path: "/login",
+      pageTitle: "Login",
+      errorMessage: errors.array()[0]?.msg,
+    });
+  }
   User.findOne({ where: { email } })
     .then((user) => {
       if (!user) {
@@ -46,7 +54,8 @@ exports.postLogin = (req, res) => {
             return res.redirect("/");
           });
         }
-        res.redirect("/login");
+        // Note: removing this thinking this will be handled by the route validation
+        // res.redirect("/login");
       });
     })
     .catch((e) => console.log(e));
@@ -81,27 +90,26 @@ exports.postSignup = (req, res, next) => {
     });
   }
   // if the user already exists then just redirect
-  User.findOne({ where: { email } })
-    .then((userCheck) => {
-      if (userCheck) {
-        return res.redirect("/signup");
-      }
-      // else
-      return bcrypt
-        .hash(password, 12)
-        .then((hashedPasswords) => {
-          const user = new User({ email, password: hashedPasswords });
-          return user.save();
-        })
-        .then((user) => {
-          // transporter.sendMail({
-          //   to:email,
-          //   from: 'shop@node-complete.com',
-          //   subject: 'SignUp succeeded!',
-          //   html: '<h1>You successfully signed up!</h1>'
-          // })
-          return user.createCart();
-        });
+  // User.findOne({ where: { email } })
+  //   .then((userCheck) => {
+  //     if (userCheck) {
+  //       return res.redirect("/signup");
+  //     }
+  // else
+  bcrypt
+    .hash(password, 12)
+    .then((hashedPasswords) => {
+      const user = new User({ email, password: hashedPasswords });
+      return user.save();
+    })
+    .then((user) => {
+      // transporter.sendMail({
+      //   to:email,
+      //   from: 'shop@node-complete.com',
+      //   subject: 'SignUp succeeded!',
+      //   html: '<h1>You successfully signed up!</h1>'
+      // })
+      return user.createCart();
     })
     .then(() => res.redirect("/login"))
     .catch((e) => console.log(e));
