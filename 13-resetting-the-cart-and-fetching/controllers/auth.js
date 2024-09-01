@@ -1,7 +1,7 @@
 // step 2
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const { Op, ValidationError } = require("sequelize");
+const { Ops } = require("sequelize");
 
 const User = require("../models/user");
 const { validationResult } = require("express-validator");
@@ -24,6 +24,11 @@ exports.getLogin = (req, res, next) => {
     path: "/login",
     pageTitle: "Login",
     errorMessage: message,
+    oldInput: {
+      email: "",
+      password: ""
+    },
+    validationError: []
   });
 };
 
@@ -37,13 +42,27 @@ exports.postLogin = (req, res) => {
       path: "/login",
       pageTitle: "Login",
       errorMessage: errors.array()[0]?.msg,
+      oldInput: {
+        email,
+        password
+      },
+      validationError: errors.array()
     });
   }
   User.findOne({ where: { email } })
     .then((user) => {
       if (!user) {
-        req.flash("error", "Invalid email or password");
-        return res.redirect("/login");
+        // req.flash("error", "Invalid email or password");
+        return res.status(422).render("auth/login", {
+          path: "/login",
+          pageTitle: "Login",
+          errorMessage: "invalid email",
+          oldInput: {
+            email,
+            password
+          },
+          validationError: [{path: "email"}] // [] to make it vague
+        });
       }
       bcrypt.compare(password, user.password).then((doMatch) => {
         if (doMatch) {
@@ -55,8 +74,18 @@ exports.postLogin = (req, res) => {
           });
         }
         // Note: removing this thinking this will be handled by the route validation
-        req.flash("error", "You password was updated");
-        return res.redirect("/login");
+        // req.flash("error", "You password was updated");
+        // return res.redirect("/login");
+        return res.status(422).render("auth/login", {
+          path: "/login",
+          pageTitle: "Login",
+          errorMessage: "invalid password",
+          oldInput: {
+            email,
+            password
+          },
+          validationError: [{path:"password"}]
+        });
       });
     })
     .catch((e) => console.log(e));
