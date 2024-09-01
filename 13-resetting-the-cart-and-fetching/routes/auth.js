@@ -49,7 +49,7 @@ router.post(
           }
         });
       }),
-    body("password", "please enter a password with only number and texts")
+    body("password", "please enter a password with only number and texts and length >= 4")
       .isLength({ min: 4 })
       .isAlphanumeric(),
     body("confirmPassword").custom((value, { req }) => {

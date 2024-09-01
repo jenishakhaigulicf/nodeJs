@@ -1,7 +1,7 @@
 // step 2
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const { Op } = require("sequelize");
+const { Op, ValidationError } = require("sequelize");
 
 const User = require("../models/user");
 const { validationResult } = require("express-validator");
@@ -55,7 +55,8 @@ exports.postLogin = (req, res) => {
           });
         }
         // Note: removing this thinking this will be handled by the route validation
-        // res.redirect("/login");
+        req.flash("error", "You password was updated");
+        return res.redirect("/login");
       });
     })
     .catch((e) => console.log(e));
@@ -74,6 +75,12 @@ exports.getSignup = (req, res, next) => {
     pageTitle: "Signup",
     isAuthenticated: false,
     errorMessage: " ",
+    oldInput : {
+      email: "",
+      password: "",
+      confirmPassword: ""
+    },
+    validationError: []
   });
 };
 
@@ -82,11 +89,18 @@ exports.postSignup = (req, res, next) => {
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
   const errors = validationResult(req);
+  console.log(errors.array(),"error")
   if (!errors.isEmpty()) {
     return res.status(422).render("auth/signup", {
       path: "/signup",
       pageTitle: "Signup",
       errorMessage: errors.array()[0]?.msg,
+      oldInput : {
+        email,
+        password,
+        confirmPassword
+      },
+      validationError: errors.array()
     });
   }
   // if the user already exists then just redirect
